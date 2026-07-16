@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Snake Game - ตะมุมิน้อย 60FPS</title>
+    <title>Snake Game - ตะมุมิน้อย</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #1e1e24;
+            background-color: #1e1e24; /* ธีมมืดละมุน */
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -25,6 +25,7 @@
             font-size: 1.6em;
             text-shadow: 0 0 10px rgba(255, 121, 198, 0.5);
         }
+        /* ป้ายข้อความน่ารักๆ ลอยได้ */
         .cute-badge {
             background: linear-gradient(135deg, #ff79c6, #bd93f9);
             color: white;
@@ -42,13 +43,14 @@
             100% { transform: translateY(0px); }
         }
         canvas {
-            background-color: #282a36;
-            border: 6px solid #44475a;
+            background-color: #282a36; /* พื้นหลังกระดานดำสนิท */
+            border: 6px solid #44475a; /* กรอบหนาเรียบหรู */
             border-radius: 18px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.6);
             max-width: 88vw;
             max-height: 88vw;
         }
+        /* ปุ่มควบคุมดีไซน์มินิมอลพาสเทล */
         .control-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -61,7 +63,7 @@
         .control-btn {
             background-color: rgba(255, 121, 198, 0.1);
             border: 2px solid #ff79c6;
-            border-radius: 50%;
+            border-radius: 50%; /* ปุ่มวงกลมมนๆ */
             color: #ff79c6;
             font-size: 1.3em;
             cursor: pointer;
@@ -87,7 +89,7 @@
 <body>
 
     <h1>✨ Snake Game ✨</h1>
-    <div class="cute-badge">🌸 ตะมุมิน้อย 60 FPS 🌸</div>
+    <div class="cute-badge">🌸 ตะมุมิน้อย 🌸</div>
 
     <canvas id="gameCanvas" width="500" height="500"></canvas>
 
@@ -115,41 +117,28 @@
         let foodY;
         let score = 0;
         let changingDirection = false;
-        let particles = [];
-
-        // ตัวแปรควบคุมเวลาสำหรับระบบ 60 FPS
-        let lastSnakeUpdateTime = 0;
-        const snakeMoveInterval = 130; // ความเร็วงู (มิลลิวินาทีต่อช่อง) ช้าลงนิดนึงตามต้องการเพื่อความตะมุตะมิ
+        let particles = []; // อาร์เรย์เก็บเอฟเฟกต์ฟรุ้งฟริ้ง
 
         createFood();
-        
-        // เริ่มต้นลูปเกมแบบลื่นไหล 60 FPS
-        requestAnimationFrame(main);
+        main();
 
-        function main(timestamp) {
+        function main() {
             if (hasGameEnded()) {
                 alert("🎉 Game Over น้าาา! ตะมุมิน้อยทำคะแนนได้: " + score + " คะแนน");
                 document.location.reload();
                 return;
             }
 
-            // สั่งให้ลูปทำงานต่อเนื่องที่ 60 FPS
-            requestAnimationFrame(main);
-
-            // เคลียร์หน้าจอและวาดเอฟเฟกต์ดาวแบบเนียนตา (ลื่นไหล 60เฟรม/วินาที)
-            clearCanvas();
-            drawFood();
-            drawParticles();
-
-            // ตรวจสอบว่าถึงเวลาที่งูต้องขยับหรือยัง
-            if (timestamp - lastSnakeUpdateTime >= snakeMoveInterval) {
+            changingDirection = false;
+            
+            setTimeout(function onTick() {
+                clearCanvas();
+                drawFood();
                 advanceSnake();
-                changingDirection = false;
-                lastSnakeUpdateTime = timestamp;
-            }
-
-            // วาดตัวงูลงบนจอ
-            drawSnake();
+                drawSnake();
+                drawParticles(); // วาดเอฟเฟกต์ระเบิดดาว
+                main();
+            }, 125); // ⏰ ปรับให้ช้าลงนิดนึงตรงนี้ (เดิม 100) เพื่อความตะมุตะมิควบคุมง่าย
         }
 
         function clearCanvas() {
@@ -157,6 +146,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
+        // วาดงูดีไซน์ใหม่ทรงกลม มีตาแป๋วแหวว เลี้ยวตามทิศทาง
         function drawSnake() {
             snake.forEach(drawSnakePart);
         }
@@ -168,29 +158,35 @@
 
             ctx.beginPath();
             if (index === 0) {
+                // ส่วนหัวงู (สีเขียวนีออนพาสเทล)
                 ctx.fillStyle = "#50fa7b";
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
 
+                // คำนวณตำแหน่งตาตามทิศทางที่งูวิ่ง
                 let eyeX1, eyeY1, eyeX2, eyeY2;
-                if (dx > 0) {
+                if (dx > 0) { // ขวา
                     eyeX1 = centerX + 4; eyeY1 = centerY - 4; eyeX2 = centerX + 4; eyeY2 = centerY + 4;
-                } else if (dx < 0) {
+                } else if (dx < 0) { // ซ้าย
                     eyeX1 = centerX - 4; eyeY1 = centerY - 4; eyeX2 = centerX - 4; eyeY2 = centerY + 4;
-                } else if (dy > 0) {
+                } else if (dy > 0) { // ลง
                     eyeX1 = centerX - 4; eyeY1 = centerY + 4; eyeX2 = centerX + 4; eyeY2 = centerY + 4;
-                } else {
+                } else { // ขึ้น
                     eyeX1 = centerX - 4; eyeY1 = centerY - 4; eyeX2 = centerX + 4; eyeY2 = centerY - 4;
                 }
 
+                // วาดตาขาว
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 3, 0, 2 * Math.PI); ctx.fill();
                 ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 3, 0, 2 * Math.PI); ctx.fill();
 
+                // วาดตาดำแป๋วแหวว
                 ctx.fillStyle = "#000000";
                 ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 1.5, 0, 2 * Math.PI); ctx.fill();
                 ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 1.5, 0, 2 * Math.PI); ctx.fill();
+
             } else {
+                // ส่วนลำตัว สลับสีชมพูฟรุ้งฟริ้งกับฟ้าพาสเทล เป็นปล้องๆ วงกลม
                 ctx.fillStyle = index % 2 === 0 ? "#ff79c6" : "#8be9fd";
                 ctx.arc(centerX, centerY, radius - 1, 0, 2 * Math.PI);
                 ctx.fill();
@@ -204,23 +200,26 @@
             const didEatFood = snake[0].x === foodX && snake[0].y === foodY;
             if (didEatFood) {
                 score += 10;
-                createParticles(foodX, foodY);
+                createParticles(foodX, foodY); // สร้างเอฟเฟกต์ฟรุ้งฟริ้งตรงตำแหน่งอาหาร
                 createFood();
             } else {
                 snake.pop();
             }
         }
 
+        // วาดแอปเปิ้ลทรงกลม มีก้านใบไม้สีเขียว
         function drawFood() {
             const radius = gridSize / 2;
             const centerX = foodX + radius;
             const centerY = foodY + radius;
 
+            // ตัวผลแอปเปิ้ลทรงกลมสีแดงสด
             ctx.beginPath();
             ctx.fillStyle = "#ff5555";
             ctx.arc(centerX, centerY, radius - 2, 0, 2 * Math.PI);
             ctx.fill();
 
+            // ก้าน/ใบไม้เล็กๆ
             ctx.beginPath();
             ctx.strokeStyle = "#50fa7b";
             ctx.lineWidth = 2;
@@ -229,16 +228,16 @@
             ctx.stroke();
         }
 
-        // ปรับแต่งเอฟเฟกต์สะเก็ดดาวให้กระจายตัวและจางลงอย่างนุ่มนวลที่ระดับ 60 FPS
+        // ระบบเอฟเฟกต์อนุภาคกระจาย (Sparkle Particles) ตอนกินอาหาร
         function createParticles(x, y) {
             const colors = ["#ff79c6", "#ffb86c", "#f1fa8c", "#8be9fd"];
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 10; i++) {
                 particles.push({
                     x: x + gridSize / 2,
                     y: y + gridSize / 2,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: (Math.random() - 0.5) * 4,
-                    radius: Math.random() * 2.5 + 1,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    radius: Math.random() * 3 + 1.5,
                     color: colors[Math.floor(Math.random() * colors.length)],
                     alpha: 1
                 });
@@ -250,7 +249,7 @@
                 let p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.alpha -= 0.02; // ค่อยๆ จางลงทีละเฟรมในระบบ 60 FPS
+                p.alpha -= 0.04;
 
                 if (p.alpha <= 0) {
                     particles.splice(i, 1);
