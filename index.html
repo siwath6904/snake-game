@@ -3,79 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Snake Game Mobile</title>
+    <title>Snake Game - ตะมุมิน้อย</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #1a1a1a;
+            background-color: #1e1e24; /* ธีมมืดละมุน */
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             flex-direction: column;
-            touch-action: manipulation; /* ป้องกันการซูมด้วยการแตะซ้ำ */
-            overflow: hidden; /* ป้องกันการเลื่อนหน้าจอ */
+            touch-action: manipulation;
+            overflow: hidden;
         }
         h1 {
-            margin-top: 10px;
-            margin-bottom: 5px;
-            color: #4CAF50;
-            font-size: 1.5em; /* ปรับขนาดตัวอักษรสำหรับมือถือ */
+            margin-top: 5px;
+            margin-bottom: 2px;
+            color: #ff79c6;
+            font-size: 1.6em;
+            text-shadow: 0 0 10px rgba(255, 121, 198, 0.5);
+        }
+        /* ป้ายข้อความน่ารักๆ ลอยได้ */
+        .cute-badge {
+            background: linear-gradient(135deg, #ff79c6, #bd93f9);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 121, 198, 0.4);
+            margin-bottom: 12px;
+            animation: floating 2s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+            100% { transform: translateY(0px); }
         }
         canvas {
-            background-color: #2c3e50;
-            border: 4px solid #34495e;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 90vw; /* กว้างสุด 90% ของหน้าจอ */
-            max-height: 90vw; /* ให้คงรูปทรงสี่เหลี่ยมจัตุรัสบนมือถือ */
+            background-color: #282a36; /* พื้นหลังกระดานดำสนิท */
+            border: 6px solid #44475a; /* กรอบหนาเรียบหรู */
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            max-width: 88vw;
+            max-height: 88vw;
         }
-        /* --- ส่วนควบคุมทิศทางบนหน้าจอ --- */
+        /* ปุ่มควบคุมดีไซน์มินิมอลพาสเทล */
         .control-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 คอลัมน์ */
-            grid-template-rows: repeat(3, 1fr); /* 3 แถว */
-            gap: 5px; /* ระยะห่างระหว่างปุ่ม */
-            width: 180px;
-            height: 180px;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            width: 170px;
+            height: 170px;
+            margin-top: 15px;
         }
         .control-btn {
-            background-color: rgba(76, 175, 80, 0.2); /* สีเขียวโปร่งแสง */
-            border: 2px solid #4CAF50;
-            border-radius: 12px;
-            color: #4CAF50;
-            font-size: 1.5em;
-            font-weight: bold;
+            background-color: rgba(255, 121, 198, 0.1);
+            border: 2px solid #ff79c6;
+            border-radius: 50%; /* ปุ่มวงกลมมนๆ */
+            color: #ff79c6;
+            font-size: 1.3em;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            user-select: none; /* ป้องกันการเลือกตัวอักษร */
-            transition: background-color 0.1s;
-            -webkit-tap-highlight-color: transparent; /* เอาแถบไฮไลต์สีฟ้าเริ่มต้นออก */
+            user-select: none;
+            transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
         .control-btn:active {
-            background-color: rgba(76, 175, 80, 0.5); /* สีเขียวเข้มขึ้นเมื่อกด */
+            background-color: #ff79c6;
+            color: white;
+            transform: scale(0.92);
         }
-        /* กำหนดตำแหน่งปุ่มในกริด */
         #up-btn { grid-column: 2; grid-row: 1; }
         #left-btn { grid-column: 1; grid-row: 2; }
         #right-btn { grid-column: 3; grid-row: 2; }
         #down-btn { grid-column: 2; grid-row: 3; }
-
     </style>
 </head>
 <body>
 
-    <h1>Snake Game Mobile</h1>
+    <h1>✨ Snake Game ✨</h1>
+    <div class="cute-badge">🌸 ตะมุมิน้อย 🌸</div>
 
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <canvas id="gameCanvas" width="500" height="500"></canvas>
 
-    <!-- --- ส่วนคอนเทนเนอร์ปุ่มควบคุม --- -->
     <div class="control-container">
         <div id="up-btn" class="control-btn" onclick="setDirection('UP')">⬆️</div>
         <div id="left-btn" class="control-btn" onclick="setDirection('LEFT')">⬅️</div>
@@ -87,34 +104,28 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // กำหนดขนาดของแต่ละช่องในกริด
         const gridSize = 20;
-        
-        // จุดเริ่มต้นของงู
         let snake = [
-            {x: 200, y: 200},
-            {x: 180, y: 200},
-            {x: 160, y: 200}
+            {x: 240, y: 240},
+            {x: 220, y: 240},
+            {x: 200, y: 240}
         ];
 
-        // ความเร็วและทิศทางเริ่มต้น (เดินไปทางขวา)
         let dx = gridSize;
         let dy = 0;
-        
         let foodX;
         let foodY;
         let score = 0;
         let changingDirection = false;
+        let particles = []; // อาร์เรย์เก็บเอฟเฟกต์ฟรุ้งฟริ้ง
 
-        // เริ่มเกม
         createFood();
         main();
 
-        // ฟังก์ชันลูปหลักของเกม
         function main() {
             if (hasGameEnded()) {
-                alert("Game Over! คะแนนของตะมุมิน้อยคือ: " + score);
-                document.location.reload(); // รีเฟรชหน้าจอเพื่อเริ่มใหม่
+                alert("🎉 Game Over น้าาา! ตะมุมิน้อยทำคะแนนได้: " + score + " คะแนน");
+                document.location.reload();
                 return;
             }
 
@@ -125,73 +136,139 @@
                 drawFood();
                 advanceSnake();
                 drawSnake();
+                drawParticles(); // วาดเอฟเฟกต์ระเบิดดาว
                 main();
-            }, 100); // ปรับตัวเลขนี้เพื่อเปลี่ยนความเร็วเกม (ยิ่งน้อยยิ่งเร็ว)
+            }, 125); // ⏰ ปรับให้ช้าลงนิดนึงตรงนี้ (เดิม 100) เพื่อความตะมุตะมิควบคุมง่าย
         }
 
-        // เคลียร์หน้าจอ
         function clearCanvas() {
-            ctx.fillStyle = "#2c3e50";
-            ctx.strokeStyle = "#34495e";
+            ctx.fillStyle = "#282a36";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeRect(0, 0, canvas.width, canvas.height);
         }
 
-        // วาดตัวงู
+        // วาดงูดีไซน์ใหม่ทรงกลม มีตาแป๋วแหวว เลี้ยวตามทิศทาง
         function drawSnake() {
             snake.forEach(drawSnakePart);
         }
 
-        function drawSnakePart(snakePart) {
-            ctx.fillStyle = "#4CAF50";
-            ctx.strokeStyle = "#2E7D32";
-            ctx.fillRect(snakePart.x, snakePart.y, gridSize, gridSize);
-            ctx.strokeRect(snakePart.x, snakePart.y, gridSize, gridSize);
+        function drawSnakePart(snakePart, index) {
+            const radius = gridSize / 2;
+            const centerX = snakePart.x + radius;
+            const centerY = snakePart.y + radius;
+
+            ctx.beginPath();
+            if (index === 0) {
+                // ส่วนหัวงู (สีเขียวนีออนพาสเทล)
+                ctx.fillStyle = "#50fa7b";
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // คำนวณตำแหน่งตาตามทิศทางที่งูวิ่ง
+                let eyeX1, eyeY1, eyeX2, eyeY2;
+                if (dx > 0) { // ขวา
+                    eyeX1 = centerX + 4; eyeY1 = centerY - 4; eyeX2 = centerX + 4; eyeY2 = centerY + 4;
+                } else if (dx < 0) { // ซ้าย
+                    eyeX1 = centerX - 4; eyeY1 = centerY - 4; eyeX2 = centerX - 4; eyeY2 = centerY + 4;
+                } else if (dy > 0) { // ลง
+                    eyeX1 = centerX - 4; eyeY1 = centerY + 4; eyeX2 = centerX + 4; eyeY2 = centerY + 4;
+                } else { // ขึ้น
+                    eyeX1 = centerX - 4; eyeY1 = centerY - 4; eyeX2 = centerX + 4; eyeY2 = centerY - 4;
+                }
+
+                // วาดตาขาว
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 3, 0, 2 * Math.PI); ctx.fill();
+                ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 3, 0, 2 * Math.PI); ctx.fill();
+
+                // วาดตาดำแป๋วแหวว
+                ctx.fillStyle = "#000000";
+                ctx.beginPath(); ctx.arc(eyeX1, eyeY1, 1.5, 0, 2 * Math.PI); ctx.fill();
+                ctx.beginPath(); ctx.arc(eyeX2, eyeY2, 1.5, 0, 2 * Math.PI); ctx.fill();
+
+            } else {
+                // ส่วนลำตัว สลับสีชมพูฟรุ้งฟริ้งกับฟ้าพาสเทล เป็นปล้องๆ วงกลม
+                ctx.fillStyle = index % 2 === 0 ? "#ff79c6" : "#8be9fd";
+                ctx.arc(centerX, centerY, radius - 1, 0, 2 * Math.PI);
+                ctx.fill();
+            }
         }
 
-        // คำนวณการเคลื่อนที่
         function advanceSnake() {
             const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            snake.unshift(head); // เพิ่มส่วนหัวใหม่เข้าไป
+            snake.unshift(head);
 
             const didEatFood = snake[0].x === foodX && snake[0].y === foodY;
             if (didEatFood) {
                 score += 10;
-                createFood(); // สร้างอาหารชิ้นใหม่ (ไม่ต้องลบหาง)
+                createParticles(foodX, foodY); // สร้างเอฟเฟกต์ฟรุ้งฟริ้งตรงตำแหน่งอาหาร
+                createFood();
             } else {
-                snake.pop(); // ลบหางออกถ้าย้ายที่แล้วไม่ได้กินอาหาร
+                snake.pop();
             }
         }
 
-        // สุ่มตำแหน่งอาหาร
-        function randomTen(min, max) {
-            return Math.round((Math.random() * (max - min) + min) / gridSize) * gridSize;
-        }
-
-        function createFood() {
-            foodX = randomTen(0, canvas.width - gridSize);
-            foodY = randomTen(0, canvas.height - gridSize);
-            
-            // ป้องกันไม่ให้อาหารเกิดทับตัวงู
-            snake.forEach(function isFoodOnSnake(part) {
-                if (part.x == foodX && part.y == foodY) createFood();
-            });
-        }
-
+        // วาดแอปเปิ้ลทรงกลม มีก้านใบไม้สีเขียว
         function drawFood() {
-            ctx.fillStyle = "#e74c3c";
-            ctx.strokeStyle = "#c0392b";
-            ctx.fillRect(foodX, foodY, gridSize, gridSize);
-            ctx.strokeRect(foodX, foodY, gridSize, gridSize);
+            const radius = gridSize / 2;
+            const centerX = foodX + radius;
+            const centerY = foodY + radius;
+
+            // ตัวผลแอปเปิ้ลทรงกลมสีแดงสด
+            ctx.beginPath();
+            ctx.fillStyle = "#ff5555";
+            ctx.arc(centerX, centerY, radius - 2, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // ก้าน/ใบไม้เล็กๆ
+            ctx.beginPath();
+            ctx.strokeStyle = "#50fa7b";
+            ctx.lineWidth = 2;
+            ctx.moveTo(centerX, centerY - radius + 2);
+            ctx.lineTo(centerX + 3, centerY - radius - 2);
+            ctx.stroke();
         }
 
-        // เช็คการชน
+        // ระบบเอฟเฟกต์อนุภาคกระจาย (Sparkle Particles) ตอนกินอาหาร
+        function createParticles(x, y) {
+            const colors = ["#ff79c6", "#ffb86c", "#f1fa8c", "#8be9fd"];
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x: x + gridSize / 2,
+                    y: y + gridSize / 2,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    radius: Math.random() * 3 + 1.5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1
+                });
+            }
+        }
+
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.04;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.beginPath();
+                    ctx.fillStyle = p.color;
+                    ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
         function hasGameEnded() {
-            // ชนตัวเอง
             for (let i = 4; i < snake.length; i++) {
                 if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
             }
-            // ชนกำแพง
             const hitLeftWall = snake[0].x < 0;
             const hitRightWall = snake[0].x >= canvas.width;
             const hitToptWall = snake[0].y < 0;
@@ -199,7 +276,18 @@
             return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall;
         }
 
-        // ฟังก์ชันส่วนกลางสำหรับการตั้งทิศทางใหม่ (ป้องกันการกดสวนทิศเดิม)
+        function randomTen(min, max) {
+            return Math.round((Math.random() * (max - min) + min) / gridSize) * gridSize;
+        }
+
+        function createFood() {
+            foodX = randomTen(0, canvas.width - gridSize);
+            foodY = randomTen(0, canvas.height - gridSize);
+            snake.forEach(function isFoodOnSnake(part) {
+                if (part.x == foodX && part.y == foodY) createFood();
+            });
+        }
+
         function setDirection(direction) {
             if (changingDirection) return;
 
@@ -208,29 +296,12 @@
             const goingRight = dx === gridSize;
             const goingLeft = dx === -gridSize;
 
-            if (direction === 'LEFT' && !goingRight) {
-                dx = -gridSize;
-                dy = 0;
-                changingDirection = true;
-            }
-            if (direction === 'UP' && !goingDown) {
-                dx = 0;
-                dy = -gridSize;
-                changingDirection = true;
-            }
-            if (direction === 'RIGHT' && !goingLeft) {
-                dx = gridSize;
-                dy = 0;
-                changingDirection = true;
-            }
-            if (direction === 'DOWN' && !goingUp) {
-                dx = 0;
-                dy = gridSize;
-                changingDirection = true;
-            }
+            if (direction === 'LEFT' && !goingRight) { dx = -gridSize; dy = 0; changingDirection = true; }
+            if (direction === 'UP' && !goingDown) { dx = 0; dy = -gridSize; changingDirection = true; }
+            if (direction === 'RIGHT' && !goingLeft) { dx = gridSize; dy = 0; changingDirection = true; }
+            if (direction === 'DOWN' && !goingUp) { dx = 0; dy = gridSize; changingDirection = true; }
         }
 
-        // ควบคุมทิศทาง (Keyboard support - ยังคงไว้สำหรับการเล่นข้ามแพลตฟอร์ม)
         function changeDirection(event) {
             const LEFT_KEY = 37, A_KEY = 65;
             const RIGHT_KEY = 39, D_KEY = 68;
@@ -239,22 +310,13 @@
 
             const keyPressed = event.keyCode;
 
-            if (keyPressed === LEFT_KEY || keyPressed === A_KEY) {
-                setDirection('LEFT');
-            }
-            if (keyPressed === UP_KEY || keyPressed === W_KEY) {
-                setDirection('UP');
-            }
-            if (keyPressed === RIGHT_KEY || keyPressed === D_KEY) {
-                setDirection('RIGHT');
-            }
-            if (keyPressed === DOWN_KEY || keyPressed === S_KEY) {
-                setDirection('DOWN');
-            }
+            if (keyPressed === LEFT_KEY || keyPressed === A_KEY) setDirection('LEFT');
+            if (keyPressed === UP_KEY || keyPressed === W_KEY) setDirection('UP');
+            if (keyPressed === RIGHT_KEY || keyPressed === D_KEY) setDirection('RIGHT');
+            if (keyPressed === DOWN_KEY || keyPressed === S_KEY) setDirection('DOWN');
         }
 
         document.addEventListener("keydown", changeDirection);
     </script>
-
 </body>
 </html>
